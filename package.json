@@ -1,0 +1,40 @@
+{
+  "name": "ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@heroui/react": "^2.7.11",
+    "@hookform/error-message": "^2.0.1",
+    "@huggingface/transformers": "^3.6.1",
+    "@langchain/community": "^0.3.48",
+    "@langchain/core": "^0.3.62",
+    "@tanstack/react-query": "^5.81.5",
+    "@xenova/transformers": "^2.17.2",
+    "axios": "^1.10.0",
+    "next": "15.3.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.60.0",
+    "react-icons": "^5.5.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
+    "youtubei.js": "^14.0.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.4",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
