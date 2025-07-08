@@ -1,5 +1,3 @@
-import { YoutubeLoader } from "@langchain/community/document_loaders/web/youtube";
-
 
 export const getVideoInfo = async (videoId: string) => {
     const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_KEY;
@@ -13,14 +11,3 @@ export const getVideoInfo = async (videoId: string) => {
     };
   }
 
-
-export const getTranscript = async(videoId: string) =>{
-  const loader = YoutubeLoader.createFromUrl("https://youtu.be/bZQun8Y4L2A", {
-    language: "en",
-    addVideoInfo: true,
-  });
-  
-  const docs = await loader.load();
-  
-  console.log(docs);
-}

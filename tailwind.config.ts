@@ -27,7 +27,7 @@ const config: Config = {
         gradientBlue: 'linear-gradient(to bottom, #000510 40%, #031438)',
       },
       colors:{
-      
+         redColor:'#e1002d'
       }
   	}
   },
