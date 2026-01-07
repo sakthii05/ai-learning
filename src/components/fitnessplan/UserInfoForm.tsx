@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { addToast, Button, Card, CardBody, Divider } from "@heroui/react";
+import { addToast, ToastProvider, Button, Card, CardBody, Divider } from "@heroui/react";
 import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
 import { FitnessPlantype } from "@/lib/schemas";
 import { RiGeminiFill } from "react-icons/ri";
@@ -264,11 +264,12 @@ export function UserInfoForm() {
             });
             
             setSubmittedData(parsedData);
-            addToast({
-                title: 'Generated Fitness plan',
-                description: 'Your fitness plan has been Generated successfully.',
-                color: 'success',
-            });
+            // addToast({
+            //     title: 'Generated Fitness plan',
+            //     description: 'Your fitness plan has been Generated successfully.',
+            //     color: 'success',
+            //     timeout: 2000,
+            // });
         } catch (error: any) {
             setLoading(false);
             console.error("Error generating plan:", error);
@@ -276,12 +277,14 @@ export function UserInfoForm() {
                 title: 'Generation Failed',
                 description: error.message || 'Something went wrong while generating your plan.',
                 color: 'danger',
+                timeout: 2000,
             });
         }
     };
 
     return (
         <>
+            <ToastProvider placement={'bottom-right'} />
             {submittedData ? (
                 <ViewPlan data={submittedData} />
             ) : (

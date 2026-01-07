@@ -9,6 +9,7 @@ import {
     Chip,
     Button,
     addToast,
+    ToastProvider,
 } from '@heroui/react';
 import {
     IoFitnessOutline,
@@ -105,7 +106,7 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
 
     return (
         <div className="w-full max-w-[1300px] mx-auto px-3 md:px-6 py-4 md:py-8">
-
+            <ToastProvider placement={'bottom-right'} />
             {/* Hero Header */}
             <div className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-5 md:p-8 mb-5 md:mb-8">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
