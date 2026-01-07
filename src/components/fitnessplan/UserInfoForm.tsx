@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, Card, CardBody, Divider } from "@heroui/react";
+import { addToast, Button, Card, CardBody, Divider } from "@heroui/react";
 import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
 import { FitnessPlantype } from "@/lib/schemas";
 import { RiGeminiFill } from "react-icons/ri";
@@ -241,25 +241,43 @@ export function UserInfoForm() {
             },
         };
 
-        const res = await fetch("/api/generate-plan", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userInfo }),
-        });
+        try {
+            const res = await fetch("/api/generate-plan", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userInfo }),
+            });
 
-        const resData = await res.json();
-        const parsedData = JSON.parse(
-            resData.plan.kwargs.content
-                .replace(/```json/gi, "")
-                .replace(/```/g, "")
-                .trim()
-        );
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth',
-        });
-        setLoading(false);
-        setSubmittedData(parsedData);
+            if (!res.ok) throw new Error("Failed to generate plan");
+
+            const resData = await res.json();
+            const parsedData = JSON.parse(
+                resData.plan.kwargs.content
+                    .replace(/```json/gi, "")
+                    .replace(/```/g, "")
+                    .trim()
+            );
+            setLoading(false);
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth',
+            });
+            
+            setSubmittedData(parsedData);
+            addToast({
+                title: 'Generated Fitness plan',
+                description: 'Your fitness plan has been Generated successfully.',
+                color: 'success',
+            });
+        } catch (error: any) {
+            setLoading(false);
+            console.error("Error generating plan:", error);
+            addToast({
+                title: 'Generation Failed',
+                description: error.message || 'Something went wrong while generating your plan.',
+                color: 'danger',
+            });
+        }
     };
 
     return (
@@ -567,7 +585,7 @@ export function UserInfoForm() {
                                 // isDisabled={!isValid}
                                 isLoading={loading}
                             >
-                                    <RiGeminiFill className="text-lg"/> Generate Plan
+                                <RiGeminiFill className="text-lg" /> Generate Plan
                             </Button>
                         </div>
                         {!isValid && Object.keys(errors).length > 0 && (
