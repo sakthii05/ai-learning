@@ -1,11 +1,10 @@
 "use client";
 import CustomDrawer from "@/components/common/CustomDrawer";
 import CustomInput from "@/components/inputs/CustomInput";
-import useDebounce from "@/hooks/useDebounce";
 import { getVideoInfo } from "@/utils/common";
 import { addToast, Button, Spinner, Tab, Tabs } from "@heroui/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { Key, useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import YouTube, { YouTubeEvent } from "react-youtube";
 

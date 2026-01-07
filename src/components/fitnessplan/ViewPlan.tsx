@@ -4,12 +4,9 @@ import React, { useState } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import FitnessPlanPDF from './FitnessPlanPDF';
 import {
-    Card,
-    CardBody,
     Accordion,
     AccordionItem,
     Chip,
-    Divider,
     Button,
     addToast,
 } from '@heroui/react';
@@ -28,7 +25,6 @@ import {
     IoBedOutline,
     IoLeafOutline,
     IoTrendingUpOutline,
-    IoBodyOutline,
     IoShieldCheckmarkOutline,
 } from 'react-icons/io5';
 import { FitnessPlantype } from '@/lib/schemas';
