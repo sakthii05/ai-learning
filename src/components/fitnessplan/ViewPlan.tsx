@@ -10,6 +10,10 @@ import {
     Button,
     addToast,
     ToastProvider,
+    Textarea,
+    Card,
+    CardBody,
+    CardFooter,
 } from '@heroui/react';
 import {
     IoFitnessOutline,
@@ -30,13 +34,658 @@ import {
 } from 'react-icons/io5';
 import { FitnessPlantype } from '@/lib/schemas';
 import { HiOutlineDownload } from "react-icons/hi";
+import { MdAdd } from "react-icons/md";
+
+
+type UserReview = {
+    diet_plan: {
+        over_all_meal: string,
+    },
+    workout_plan: {
+        over_all_exercise: string,
+    }
+}
 
 interface ViewPlanProps {
     data: FitnessPlantype;
+    userName: string;
+    onGeneratePlan: (review: UserReview) => void
+    loading: boolean
+    reviews: UserReview
+    hasAnyReview: boolean
+    selectedReviewBox: string | null,
+    onSelectReviewBox: (value: string | null) => void
+    onReviewSubmit: (category: string, itemKey: string, text: string) => void
 }
 
-const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
+const ViewPlan = (props: ViewPlanProps) => {
+    const { data, userName, onGeneratePlan, loading, reviews, hasAnyReview, selectedReviewBox, onSelectReviewBox, onReviewSubmit } = props;
     const [downloading, setDownloading] = useState(false);
+    console.log(data)
+    const FloatingReviewBox = ({ category, itemKey, onClose, initialValue, placeholder }: {
+        category: string,
+        itemKey: string,
+        onClose: () => void,
+        initialValue: string,
+        placeholder: string
+    }) => {
+        const [text, setText] = useState(initialValue);
+        const [error, setError] = useState("");
+
+        const validate = () => {
+            if (text.length > 0 && text.length < 10) {
+                setError("Minimum 10 characters required");
+                return false;
+            }
+            if (text.length > 350) {
+                setError("Maximum 350 characters allowed");
+                return false;
+            }
+            setError("");
+            return true;
+        };
+
+        return (
+            <Card className="absolute z-[100] w-72 shadow-2xl border border-primary/20 -translate-y-[calc(100%+8px)] left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-0">
+                <CardBody className="p-3">
+                    <Textarea
+                        label={"Add Comment"}
+                        placeholder={placeholder}
+                        value={text}
+                        onValueChange={(val) => {
+                            setText(val);
+                            if (error) setError("");
+                        }}
+                        maxLength={350}
+                        errorMessage={error}
+                        isInvalid={!!error}
+                        classNames={{
+                            label: "text-xs font-semibold text-primary",
+                            input: "text-sm"
+                        }}
+                    />
+                </CardBody>
+                <CardFooter className="flex justify-end gap-2 p-2 pt-0">
+                    <Button size="sm" variant="light" color="danger" onPress={onClose}>
+                        Cancel
+                    </Button>
+                    <Button
+                        size="sm"
+                        color="primary"
+                        onPress={() => {
+                            if (validate()) {
+                                onReviewSubmit(category, itemKey, text);
+                            }
+                        }}
+                    >
+                        Submit
+                    </Button>
+                </CardFooter>
+            </Card>
+        );
+    };
+    // const data1 = {
+    //     "plan_metadata": {
+    //         "plan_type": "initial_plan",
+    //         "goal": "muscle_gain",
+    //         "duration_weeks": 2,
+    //         "advise": "Start with lighter weights and progress gradually, ensure proper warm-up and cool-down routines."
+    //     },
+    //     "calculations": {
+    //         "bmr": 1984.6,
+    //         "tdee": 2465.68,
+    //         "target_calories": 2800,
+    //         "strategy": "surplus"
+    //     },
+    //     "training_structure": {
+    //         "days_per_week": 4,
+    //         "rest_days": 2,
+    //         "light_activity_days": 1,
+    //         "reason": "To allow for muscle recovery and growth, considering the user's sedentary activity level and beginner experience."
+    //     },
+    //     "diet_plan": {
+    //         "calories_per_day": 2800,
+    //         "macros": {
+    //             "protein_g": 170,
+    //             "carbs_g": 250,
+    //             "fat_g": 100
+    //         },
+    //         "meals": {
+    //             "breakfast": {
+    //                 "options": [
+    //                     {
+    //                         "label": "Option 1",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "idlis",
+    //                                 "amount": "4 pieces"
+    //                             }
+    //                         ],
+    //                         "calories": 300,
+    //                         "macros": {
+    //                             "protein_g": 10,
+    //                             "carbs_g": 60,
+    //                             "fat_g": 5
+    //                         },
+    //                         "description": "Steamed idlis with coconut chutney"
+    //                     },
+    //                     {
+    //                         "label": "Option 2",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "oatmeal",
+    //                                 "amount": "1 bowl"
+    //                             }
+    //                         ],
+    //                         "calories": 350,
+    //                         "macros": {
+    //                             "protein_g": 15,
+    //                             "carbs_g": 60,
+    //                             "fat_g": 10
+    //                         },
+    //                         "description": "Oatmeal with milk, banana, and honey"
+    //                     },
+    //                     {
+    //                         "label": "Option 3",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "paratha",
+    //                                 "amount": "2 pieces"
+    //                             }
+    //                         ],
+    //                         "calories": 320,
+    //                         "macros": {
+    //                             "protein_g": 10,
+    //                             "carbs_g": 50,
+    //                             "fat_g": 10
+    //                         },
+    //                         "description": "Whole wheat paratha with scrambled eggs"
+    //                     },
+    //                     {
+    //                         "label": "Option 4",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "upma",
+    //                                 "amount": "1 bowl"
+    //                             }
+    //                         ],
+    //                         "calories": 300,
+    //                         "macros": {
+    //                             "protein_g": 10,
+    //                             "carbs_g": 50,
+    //                             "fat_g": 10
+    //                         },
+    //                         "description": "Vegetable upma with whole wheat rava"
+    //                     },
+    //                     {
+    //                         "label": "Option 5",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "dosa",
+    //                                 "amount": "2 pieces"
+    //                             }
+    //                         ],
+    //                         "calories": 250,
+    //                         "macros": {
+    //                             "protein_g": 10,
+    //                             "carbs_g": 40,
+    //                             "fat_g": 5
+    //                         },
+    //                         "description": "Rice and lentil dosa with sambar"
+    //                     }
+    //                 ]
+    //             },
+    //             "lunch": {
+    //                 "options": [
+    //                     {
+    //                         "label": "Option 1",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "chicken biryani",
+    //                                 "amount": "1 plate"
+    //                             }
+    //                         ],
+    //                         "calories": 500,
+    //                         "macros": {
+    //                             "protein_g": 40,
+    //                             "carbs_g": 60,
+    //                             "fat_g": 20
+    //                         },
+    //                         "description": "Chicken biryani with raita"
+    //                     },
+    //                     {
+    //                         "label": "Option 2",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "brown rice",
+    //                                 "amount": "1 cup"
+    //                             },
+    //                             {
+    //                                 "item": "mixed vegetables",
+    //                                 "amount": "1 cup"
+    //                             }
+    //                         ],
+    //                         "calories": 400,
+    //                         "macros": {
+    //                             "protein_g": 15,
+    //                             "carbs_g": 60,
+    //                             "fat_g": 10
+    //                         },
+    //                         "description": "Brown rice with mixed vegetables and a small bowl of dal"
+    //                     },
+    //                     {
+    //                         "label": "Option 3",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "whole wheat roti",
+    //                                 "amount": "2 pieces"
+    //                             },
+    //                             {
+    //                                 "item": "chicken curry",
+    //                                 "amount": "1 cup"
+    //                             }
+    //                         ],
+    //                         "calories": 450,
+    //                         "macros": {
+    //                             "protein_g": 35,
+    //                             "carbs_g": 40,
+    //                             "fat_g": 20
+    //                         },
+    //                         "description": "Whole wheat roti with chicken curry"
+    //                     },
+    //                     {
+    //                         "label": "Option 4",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "quinoa",
+    //                                 "amount": "1 cup"
+    //                             },
+    //                             {
+    //                                 "item": "mixed vegetables",
+    //                                 "amount": "1 cup"
+    //                             }
+    //                         ],
+    //                         "calories": 400,
+    //                         "macros": {
+    //                             "protein_g": 15,
+    //                             "carbs_g": 60,
+    //                             "fat_g": 10
+    //                         },
+    //                         "description": "Quinoa with mixed vegetables and a small bowl of dal"
+    //                     },
+    //                     {
+    //                         "label": "Option 5",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "fish fry",
+    //                                 "amount": "1 piece"
+    //                             },
+    //                             {
+    //                                 "item": "brown rice",
+    //                                 "amount": "1 cup"
+    //                             }
+    //                         ],
+    //                         "calories": 400,
+    //                         "macros": {
+    //                             "protein_g": 35,
+    //                             "carbs_g": 40,
+    //                             "fat_g": 20
+    //                         },
+    //                         "description": "Grilled fish with brown rice"
+    //                     }
+    //                 ]
+    //             },
+    //             "snack": {
+    //                 "options": [
+    //                     {
+    //                         "label": "Option 1",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "fruits",
+    //                                 "amount": "1 plate"
+    //                             }
+    //                         ],
+    //                         "calories": 100,
+    //                         "macros": {
+    //                             "protein_g": 2,
+    //                             "carbs_g": 20,
+    //                             "fat_g": 0
+    //                         },
+    //                         "description": "Fresh fruits"
+    //                     },
+    //                     {
+    //                         "label": "Option 2",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "nuts",
+    //                                 "amount": "1 handful"
+    //                             }
+    //                         ],
+    //                         "calories": 150,
+    //                         "macros": {
+    //                             "protein_g": 5,
+    //                             "carbs_g": 10,
+    //                             "fat_g": 10
+    //                         },
+    //                         "description": "Mixed nuts"
+    //                     },
+    //                     {
+    //                         "label": "Option 3",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "yogurt",
+    //                                 "amount": "1 cup"
+    //                             }
+    //                         ],
+    //                         "calories": 100,
+    //                         "macros": {
+    //                             "protein_g": 10,
+    //                             "carbs_g": 10,
+    //                             "fat_g": 0
+    //                         },
+    //                         "description": "Plain yogurt"
+    //                     },
+    //                     {
+    //                         "label": "Option 4",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "energy bar",
+    //                                 "amount": "1 piece"
+    //                             }
+    //                         ],
+    //                         "calories": 150,
+    //                         "macros": {
+    //                             "protein_g": 10,
+    //                             "carbs_g": 20,
+    //                             "fat_g": 5
+    //                         },
+    //                         "description": "Energy bar"
+    //                     },
+    //                     {
+    //                         "label": "Option 5",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "smoothie",
+    //                                 "amount": "1 glass"
+    //                             }
+    //                         ],
+    //                         "calories": 150,
+    //                         "macros": {
+    //                             "protein_g": 10,
+    //                             "carbs_g": 20,
+    //                             "fat_g": 5
+    //                         },
+    //                         "description": "Fruit smoothie"
+    //                     }
+    //                 ]
+    //             },
+    //             "dinner": {
+    //                 "options": [
+    //                     {
+    //                         "label": "Option 1",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "chicken curry",
+    //                                 "amount": "1 cup"
+    //                             },
+    //                             {
+    //                                 "item": "brown rice",
+    //                                 "amount": "1 cup"
+    //                             }
+    //                         ],
+    //                         "calories": 500,
+    //                         "macros": {
+    //                             "protein_g": 40,
+    //                             "carbs_g": 60,
+    //                             "fat_g": 20
+    //                         },
+    //                         "description": "Chicken curry with brown rice"
+    //                     },
+    //                     {
+    //                         "label": "Option 2",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "mixed vegetables",
+    //                                 "amount": "1 cup"
+    //                             },
+    //                             {
+    //                                 "item": "whole wheat roti",
+    //                                 "amount": "2 pieces"
+    //                             }
+    //                         ],
+    //                         "calories": 400,
+    //                         "macros": {
+    //                             "protein_g": 15,
+    //                             "carbs_g": 40,
+    //                             "fat_g": 10
+    //                         },
+    //                         "description": "Mixed vegetables with whole wheat roti"
+    //                     },
+    //                     {
+    //                         "label": "Option 3",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "fish fry",
+    //                                 "amount": "1 piece"
+    //                             },
+    //                             {
+    //                                 "item": "quinoa",
+    //                                 "amount": "1 cup"
+    //                             }
+    //                         ],
+    //                         "calories": 450,
+    //                         "macros": {
+    //                             "protein_g": 35,
+    //                             "carbs_g": 40,
+    //                             "fat_g": 20
+    //                         },
+    //                         "description": "Grilled fish with quinoa"
+    //                     },
+    //                     {
+    //                         "label": "Option 4",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "lentil soup",
+    //                                 "amount": "1 bowl"
+    //                             },
+    //                             {
+    //                                 "item": "whole wheat bread",
+    //                                 "amount": "2 slices"
+    //                             }
+    //                         ],
+    //                         "calories": 400,
+    //                         "macros": {
+    //                             "protein_g": 20,
+    //                             "carbs_g": 60,
+    //                             "fat_g": 10
+    //                         },
+    //                         "description": "Lentil soup with whole wheat bread"
+    //                     },
+    //                     {
+    //                         "label": "Option 5",
+    //                         "quantity": [
+    //                             {
+    //                                 "item": "grilled chicken",
+    //                                 "amount": "1 piece"
+    //                             },
+    //                             {
+    //                                 "item": "mixed vegetables",
+    //                                 "amount": "1 cup"
+    //                             }
+    //                         ],
+    //                         "calories": 350,
+    //                         "macros": {
+    //                             "protein_g": 35,
+    //                             "carbs_g": 10,
+    //                             "fat_g": 10
+    //                         },
+    //                         "description": "Grilled chicken with mixed vegetables"
+    //                     }
+    //                 ]
+    //             }
+    //         }
+    //     },
+    //     "workout_plan": {
+    //         "weekly_schedule": [
+    //             {
+    //                 "day": "Monday",
+    //                 "type": "strength",
+    //                 "focus": "Chest and Triceps",
+    //                 "duration_min": 45,
+    //                 "exercises": [
+    //                     {
+    //                         "name": "Bench Press",
+    //                         "sets": 3,
+    //                         "reps": 8,
+    //                         "alternatives": [
+    //                             "Dumbbell Press",
+    //                             "Incline Press"
+    //                         ]
+    //                     },
+    //                     {
+    //                         "name": "Tricep Pushdown",
+    //                         "sets": 3,
+    //                         "reps": 12,
+    //                         "alternatives": [
+    //                             "Overhead Dumbbell Extension",
+    //                             "Skull Crusher"
+    //                         ]
+    //                     }
+    //                 ]
+    //             },
+    //             {
+    //                 "day": "Tuesday",
+    //                 "type": "light",
+    //                 "focus": "Yoga and Stretching",
+    //                 "duration_min": 30,
+    //                 "exercises": [
+    //                     {
+    //                         "name": "Downward-Facing Dog",
+    //                         "sets": 3,
+    //                         "reps": 10,
+    //                         "alternatives": [
+    //                             "Child's Pose",
+    //                             "Cat-Cow Stretch"
+    //                         ]
+    //                     },
+    //                     {
+    //                         "name": "Warrior Pose",
+    //                         "sets": 3,
+    //                         "reps": 10,
+    //                         "alternatives": [
+    //                             "Triangle Pose",
+    //                             "Seated Forward Fold"
+    //                         ]
+    //                     }
+    //                 ]
+    //             },
+    //             {
+    //                 "day": "Wednesday",
+    //                 "type": "rest",
+    //                 "focus": "Rest and Recovery",
+    //                 "duration_min": 0,
+    //                 "exercises": []
+    //             },
+    //             {
+    //                 "day": "Thursday",
+    //                 "type": "strength",
+    //                 "focus": "Back and Biceps",
+    //                 "duration_min": 45,
+    //                 "exercises": [
+    //                     {
+    //                         "name": "Pull-ups",
+    //                         "sets": 3,
+    //                         "reps": 8,
+    //                         "alternatives": [
+    //                             "Lat Pulldowns",
+    //                             "Rows"
+    //                         ]
+    //                     },
+    //                     {
+    //                         "name": "Dumbbell Bicep Curls",
+    //                         "sets": 3,
+    //                         "reps": 12,
+    //                         "alternatives": [
+    //                             "Hammer Curls",
+    //                             "Preacher Curls"
+    //                         ]
+    //                     }
+    //                 ]
+    //             },
+    //             {
+    //                 "day": "Friday",
+    //                 "type": "light",
+    //                 "focus": "Cardio and Conditioning",
+    //                 "duration_min": 30,
+    //                 "exercises": [
+    //                     {
+    //                         "name": "Jogging",
+    //                         "sets": 3,
+    //                         "reps": 10,
+    //                         "alternatives": [
+    //                             "Cycling",
+    //                             "Swimming"
+    //                         ]
+    //                     },
+    //                     {
+    //                         "name": "Burpees",
+    //                         "sets": 3,
+    //                         "reps": 10,
+    //                         "alternatives": [
+    //                             "Jumping Jacks",
+    //                             "Mountain Climbers"
+    //                         ]
+    //                     }
+    //                 ]
+    //             },
+    //             {
+    //                 "day": "Saturday",
+    //                 "type": "strength",
+    //                 "focus": "Legs and Shoulders",
+    //                 "duration_min": 45,
+    //                 "exercises": [
+    //                     {
+    //                         "name": "Squats",
+    //                         "sets": 3,
+    //                         "reps": 8,
+    //                         "alternatives": [
+    //                             "Leg Press",
+    //                             "Lunges"
+    //                         ]
+    //                     },
+    //                     {
+    //                         "name": "Standing Military Press",
+    //                         "sets": 3,
+    //                         "reps": 8,
+    //                         "alternatives": [
+    //                             "Seated Dumbbell Shoulder Press",
+    //                             "Lateral Raises"
+    //                         ]
+    //                     }
+    //                 ]
+    //             },
+    //             {
+    //                 "day": "Sunday",
+    //                 "type": "rest",
+    //                 "focus": "Rest and Recovery",
+    //                 "duration_min": 0,
+    //                 "exercises": []
+    //             }
+    //         ],
+    //         "injury_considerations": [],
+    //         "allow_exercise_replacement": true
+    //     },
+    //     "safety_notes": {
+    //         "medical_conditions_considered": [
+    //             "none"
+    //         ],
+    //         "high_impact_exercises_removed": true
+    //     },
+    //     "explanations": {
+    //         "diet": "The diet plan is designed to provide a caloric surplus to support muscle gain, with a balance of protein, carbohydrates, and healthy fats. The meal options are tailored to the user's preferences and location, with a focus on whole, unprocessed foods.",
+    //         "workout": "The workout plan is designed to provide a balanced and progressive routine, with a focus on strength training and cardio. The exercises are chosen to work multiple muscle groups at once, and the sets and reps are tailored to the user's experience level and goals."
+    //     }
+    // }
 
     const {
         plan_metadata,
@@ -118,13 +767,13 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                             <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                                 <IoFitnessOutline className="text-white text-lg" />
                             </div>
-                            <span className="text-white/80 text-sm font-medium uppercase tracking-wider">Your Plan</span>
+                            <span className="text-white/80 text-sm font-medium  tracking-wider">Hi {userName}, Your Plan</span>
                         </div>
                         <Button
                             size="md"
                             variant="flat"
                             className="bg-white/20 text-white backdrop-blur-sm"
-                            startContent={<HiOutlineDownload  className="text-lg" />}
+                            startContent={<HiOutlineDownload className="text-lg" />}
                             isLoading={downloading}
                             onPress={async () => {
                                 setDownloading(true);
@@ -140,7 +789,7 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                                         title: 'Download Complete',
                                         description: 'Your fitness plan PDF has been downloaded successfully.',
                                         color: 'success',
-                                       
+
                                     });
                                 } catch (error) {
                                     console.error('Error generating PDF:', error);
@@ -206,7 +855,7 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                         <IoHeartOutline className="text-pink-500 text-lg" />
                     </div>
                     <p className="text-xl md:text-2xl font-bold text-default-900">{calculations.bmr}</p>
-                    <p className="text-sm text-default-500 mt-0.5">BMR</p>
+                    <p className="text-sm text-default-500 mt-0.5">Basal Metabolic Rate</p>
                 </div>
 
                 {/* Workout Days */}
@@ -229,7 +878,7 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                     </div>
                     <div className="flex justify-between items-center gap-1 md:gap-2">
                         {['Training', 'Light', 'Rest'].map((type, idx) => {
-                            const values = [training_structure.days_per_week, training_structure.light_activity_days, training_structure.rest_days];
+                            const values = [training_structure.strength_days, training_structure.light_activity_days, training_structure.rest_days];
                             const colors = ['text-violet-500', 'text-emerald-500', 'text-slate-400'];
                             const bgColors = ['bg-violet-500/15', 'bg-emerald-500/15', 'bg-slate-400/15'];
                             return (
@@ -292,13 +941,34 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                         <IoRestaurantOutline className="text-amber-600" />
                     </div>
                     <h2 className="text-base md:text-lg font-semibold">Meal Plan</h2>
+                    <div className="relative">
+                        <div
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectReviewBox(selectedReviewBox === 'diet_plan.over_all_meal' ? null : 'diet_plan.over_all_meal');
+                            }}
+                            className='w-8 h-8 cursor-pointer rounded-full flex justify-center items-center text-xl bg-primary text-white'
+                        >
+                            <MdAdd />
+                        </div>
+                        {selectedReviewBox === 'diet_plan.over_all_meal' && (
+                            <FloatingReviewBox
+                                category="diet_plan"
+                                itemKey="over_all_meal"
+                                initialValue={reviews.diet_plan.over_all_meal}
+                                onClose={() => onSelectReviewBox(null)}
+                                placeholder='Share your thoughts and AI will regenerate the meal plan'
+                            />
+                        )}
+                    </div>
                 </div>
                 <p className="text-sm text-default-400 my-3  leading-relaxed px-4">{explanations.diet}</p>
 
-                <Accordion variant="splitted" selectionMode="multiple" className="gap-3">
+                <Accordion variant="splitted" className="gap-3">
                     {Object.entries(diet_plan.meals).map(([mealName, meal]) => {
                         const config = mealConfig[mealName];
                         return (
+
                             <AccordionItem
                                 key={mealName}
                                 aria-label={mealName}
@@ -312,6 +982,25 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                                             <span className="capitalize font-medium text-sm">{mealName}</span>
                                             <p className="text-[12px] text-default-400">{config.time}</p>
                                         </div>
+                                        {/* <div className="relative">
+                                            <div
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSelectedReviewBox(selectedReviewBox === `diet_plan.${mealName}` ? null : `diet_plan.${mealName}`);
+                                                }}
+                                                className='w-8 h-8 cursor-pointer rounded-full flex justify-center items-center text-xl bg-primary text-white'
+                                            >
+                                                <MdAdd />
+                                            </div>
+                                            {selectedReviewBox === `diet_plan.${mealName}` && (
+                                                <FloatingReviewBox
+                                                    category="diet_plan"
+                                                    itemKey={mealName}
+                                                    initialValue={reviews.diet_plan[mealName as keyof typeof reviews.diet_plan]}
+                                                    onClose={() => setSelectedReviewBox(null)}
+                                                />
+                                            )}
+                                        </div> */}
                                         <Chip size="sm" variant="flat" className="h-6 text-[12px]">{meal.options.length} options</Chip>
                                     </div>
                                 }
@@ -323,7 +1012,8 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                                                 {/* <h4 className="font-medium text-sm md:text-sm leading-tight">{option.label}</h4> */}
                                                 <span className="text-[12px] md:text-sm font-semibold text-amber-600 dark:text-amber-400 whitespace-nowrap">{option.calories} cal</span>
                                             </div>
-                                            <p className="text-sm md:text-base leading-relaxed mb-2">{option.description}</p>
+                                            <p className="text-base leading-relaxed mb-2">{option.label}</p>
+                                            <p className="text-sm text-default-500 leading-relaxed mb-2">{option.description}</p>
 
                                             {/* Macros row */}
                                             <div className="flex gap-3 text-[12px] md:text-sm mb-3">
@@ -346,6 +1036,7 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                                     ))}
                                 </div>
                             </AccordionItem>
+
                         );
                     })}
                 </Accordion>
@@ -359,6 +1050,25 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                         <IoBarbellOutline className="text-violet-500" />
                     </div>
                     <h2 className="text-base md:text-lg font-semibold">Weekly Workouts</h2>
+                    <div className="relative">
+                        <div
+                            onClick={(e) => {
+                                onSelectReviewBox(selectedReviewBox === 'workout_plan.over_all_exercise' ? null : 'workout_plan.over_all_exercise');
+                            }}
+                            className='w-8 h-8 rounded-full cursor-pointer flex justify-center items-center text-xl bg-primary text-white'
+                        >
+                            <MdAdd />
+                        </div>
+                        {selectedReviewBox === 'workout_plan.over_all_exercise' && (
+                            <FloatingReviewBox
+                                category="workout_plan"
+                                itemKey="over_all_exercise"
+                                initialValue={reviews.workout_plan.over_all_exercise}
+                                onClose={() => onSelectReviewBox(null)}
+                                placeholder='Share your thoughts and AI will regenerate the workout plan'
+                            />
+                        )}
+                    </div>
                 </div>
                 <p className="text-sm text-default-400 my-3  leading-relaxed px-4">{explanations.workout}</p>
                 {/* Mobile: Horizontal scroll */}
@@ -379,10 +1089,31 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                                             <h4 className="font-semibold text-sm">{day.day}</h4>
                                             <p className="text-[12px] text-default-500 capitalize">{day.type}</p>
                                         </div>
+
                                     </div>
                                     <div className="flex items-center gap-1 text-[12px] text-default-500">
                                         <IoTimeOutline />
                                         <span>{day.duration_min}m</span>
+                                        {/* <div className="relative">
+                                            <div
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const dayKey = day.day.toLowerCase();
+                                                    setSelectedReviewBox(selectedReviewBox === `workout_plan.${dayKey}` ? null : `workout_plan.${dayKey}`);
+                                                }}
+                                                className='w-6 h-6 cursor-pointer rounded-full flex justify-center items-center text-lg bg-primary text-white'
+                                            >
+                                                <MdAdd />
+                                            </div>
+                                            {selectedReviewBox === `workout_plan.${day.day.toLowerCase()}` && (
+                                                <FloatingReviewBox
+                                                    category="workout_plan"
+                                                    itemKey={day.day.toLowerCase()}
+                                                    initialValue={reviews.workout_plan[day.day.toLowerCase() as keyof typeof reviews.workout_plan]}
+                                                    onClose={() => setSelectedReviewBox(null)}
+                                                />
+                                            )}
+                                        </div> */}
                                     </div>
                                 </div>
 
@@ -464,6 +1195,22 @@ const ViewPlan: React.FC<ViewPlanProps> = ({ data }) => {
                     </div>
                 </div>
             </div >
+
+            {/* Generate Button */}
+            {hasAnyReview && (
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+                    <Button
+                        color="primary"
+                        size="lg"
+                        className="shadow-xl px-8 font-bold text-lg rounded-full"
+                        startContent={<IoTrendingUpOutline className="text-xl" />}
+                        onPress={() => { onGeneratePlan(reviews) }}
+                        isLoading={loading}
+                    >
+                        Generate Once Again
+                    </Button>
+                </div>
+            )}
         </div >
     );
 };

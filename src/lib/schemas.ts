@@ -13,23 +13,47 @@ export const MacroSchema = z.object({
   fat_g: z.number().min(0),
 });
 
+export const DietItemQuantitySchema = z.object({
+  item: z
+    .string()
+    .describe("Name of the food item (e.g., oats, milk, almonds)"),
+
+  amount: z
+    .string()
+    .describe(
+      "Exact quantity with unit (e.g., 100g, 250ml, 5 pieces, 1 tbsp). Must be precise."
+    ),
+});
+
 export const DietOptionSchema = z.object({
-  label: z.string(),
-  quantity: z.array(
-  z.object({
-    item: z.string().describe("food item name"),
-    amount: z.string().describe("quantity with unit, e.g., 2 pieces, 150g, 1liter, 2 apples, 1 tbsp etc.")
-  })
-).min(1),
+  label: z
+    .string()
+    .describe(
+      "Title of the food option. Short, clear, no quantities. Example: 'Oatmeal with fruits and nuts'"
+    ),
+  quantity: z
+    .array(DietItemQuantitySchema)
+    .min(1)
+    .describe(
+      "Structured list of ingredients with exact quantities. This is the ONLY place where precise measurements should appear."
+    ),
+
   calories: z.number(),
   macros: MacroSchema,
   //editable: z.literal(true),
-  description: z.string().describe(''),
+ description: z
+    .string()
+    .describe(
+      "A short, friendly explanation of the dish and simple preparation tips. "
+      + "Do NOT provide full recipes or step-by-step cooking instructions. "
+      + "Do NOT repeat exact quantities listed in the quantity field. "
+      + "You MAY mention high-level quantity references (e.g., 'a cup of milk', 'a handful of nuts') "
+      + "and tips like soaking, boiling, or mixing."
+    ),
 });
 
 export const MealSchema = z.object({
   options: z.array(DietOptionSchema).min(4).max(5),
-  //allow_add_more: z.literal(true),
 });
 
 export const DietPlanSchema = z.object({
@@ -48,7 +72,6 @@ export const ExerciseSchema = z.object({
   sets: z.number().optional(),
   reps: z.number().optional(),
   alternatives: z.array(z.string()).min(1).max(2),
-  //source_link: z.array(z.string()).min(1).max(2).describe('youtube links for exercise that should be more into user specific and workout (if user has no equipment give related to that and vise versa)'),
   //editable: z.boolean(),
 });
 
@@ -65,8 +88,8 @@ export const FitnessPlanSchema = z.object({
     plan_type: z.literal("initial_plan"),
     goal: z.string(),
     duration_weeks: z.literal(2),
-    //user_editable_sections: z.array(z.string()),
-    advise: z.string().describe('advise to user, after reading user health info and fitness goals in 1-3 lines max')
+    // user_editable_sections: z.array(z.string()),
+    advise: z.string().describe('Advise to user, after reading user health info and fitness goals in 1-3 lines max')
   }),
 
   calculations: z.object({
@@ -77,10 +100,11 @@ export const FitnessPlanSchema = z.object({
   }),
 
   training_structure: z.object({
-    days_per_week: z.number(),
-    rest_days: z.number(),
-    light_activity_days: z.number(),
-    reason: z.string(),
+    days_per_week: z.literal(7),
+    rest_days: z.number().describe('weekly_schedule.length - strength_days - light_activity_days'),
+    light_activity_days: z.number().describe('weekly_schedule.length - strength_days - rest_days'),
+    strength_days: z.number().describe('weekly_schedule.length - rest_days - light_activity_days'),
+    reason: z.string().describe('reason for training structure'),
   }),
 
   diet_plan: DietPlanSchema,

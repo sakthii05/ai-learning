@@ -70,16 +70,39 @@ const defaultValues: FormData = {
     dietType: "",
     equipment: "",
 };
+const userReview = {
+    diet_plan: {
+        over_all_meal: "",
+        // breakfast: "",
+        // lunch: "",
+        // dinner: "",
+        // snack: ""
+    },
+    workout_plan: {
+        over_all_exercise: "",
+        // monday: "",
+        // tuesday: "",
+        // wednesday: "",
+        // thursday: "",
+        // friday: "",
+        // saturday: "",
+        // sunday: ""
+    }
+}
 
 export function UserInfoForm() {
     const [submittedData, setSubmittedData] = useState<FitnessPlantype | null>(
         null
     );
     const [loading, setLoading] = useState(false);
+    const [userInfo, setUserInfo] = useState<FinalOutput | null>(null)
+    const [reviews, setReviews] = useState(userReview);
+    const [selectedReviewBox, setSelectedReviewBox] = useState<string | null>(null);
 
     const {
         control,
         handleSubmit,
+        getValues,
         setValue,
         formState: { isValid, errors },
     } = useForm<FormData>({
@@ -245,7 +268,7 @@ export function UserInfoForm() {
             const res = await fetch("/api/generate-plan", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userInfo }),
+                body: JSON.stringify({ user: { type: "generate", userInfo } }),
             });
 
             if (!res.ok) throw new Error("Failed to generate plan");
@@ -262,7 +285,7 @@ export function UserInfoForm() {
                 top: 0,
                 behavior: 'smooth',
             });
-            
+            setUserInfo(userInfo)
             setSubmittedData(parsedData);
             // addToast({
             //     title: 'Generated Fitness plan',
@@ -282,11 +305,78 @@ export function UserInfoForm() {
         }
     };
 
+
+    const handleReviewSubmit = (category: string, key: string, text: string) => {
+        setReviews(prev => ({
+            ...prev,
+            [category]: {
+                ...prev[category as keyof typeof prev],
+                [key]: text
+            }
+        }));
+        setSelectedReviewBox(null);
+    };
+
+    const hasAnyReview = Object.values(reviews).some(cat =>
+        Object.values(cat).some(val => val.trim().length > 0)
+    );
+
+
+
+    const regeneratePlan = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch("/api/generate-plan", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ user: { type: "regenerate", userInfo: { userHealthInfo: userInfo, generatedOutput: submittedData, userReview: reviews } } }),
+            });
+
+            if (!res.ok) throw new Error("Failed to generate plan");
+
+            const resData = await res.json();
+            const parsedData = JSON.parse(
+                resData.plan.kwargs.content
+                    .replace(/```json/gi, "")
+                    .replace(/```/g, "")
+                    .trim()
+            );
+            setLoading(false);
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth',
+            });
+            setUserInfo(userInfo)
+            setSubmittedData(parsedData);
+            setSelectedReviewBox(null);
+            setReviews(userReview)
+        } catch (error: any) {
+            setLoading(false);
+            console.error("Error generating plan:", error);
+            addToast({
+                title: 'Generation Failed',
+                description: error.message || 'Something went wrong while generating your plan.',
+                color: 'danger',
+                timeout: 2000,
+            });
+        }
+    }
     return (
         <>
             <ToastProvider placement={'bottom-right'} />
             {submittedData ? (
-                <ViewPlan data={submittedData} />
+                <ViewPlan data={submittedData}
+                    userName={userInfo?.user_profile.name || "User"}
+                    onGeneratePlan={() => {
+                        regeneratePlan()
+                    }}
+                    loading={loading}
+                    reviews={reviews}
+                    hasAnyReview={hasAnyReview}
+                    selectedReviewBox={selectedReviewBox}
+                    onReviewSubmit={handleReviewSubmit}
+                    onSelectReviewBox={setSelectedReviewBox}
+                />
             ) : (
                 <div className="max-w-3xl mx-auto p-6">
                     <h1 className="text-3xl font-bold text-center mb-4">
@@ -506,7 +596,7 @@ export function UserInfoForm() {
                                         />
                                         {errors.country && (
                                             <p className="text-xs text-danger mt-1">
-                                                {errors.country.message as string}
+                                                {errors.country?.message as string}
                                             </p>
                                         )}
                                     </div>
@@ -530,7 +620,7 @@ export function UserInfoForm() {
                                         />
                                         {errors.state && (
                                             <p className="text-xs text-danger mt-1">
-                                                {errors.state.message as string}
+                                                {errors.state?.message as string}
                                             </p>
                                         )}
                                     </div>
