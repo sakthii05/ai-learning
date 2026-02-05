@@ -46,7 +46,7 @@ const config: Config = {
        light: {
           colors: {
             primary: {
-              DEFAULT: '#4379EE',
+              DEFAULT: '#047857',
               foreground: '#ffffff'
             },
           }

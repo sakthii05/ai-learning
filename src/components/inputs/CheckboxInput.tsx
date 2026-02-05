@@ -31,11 +31,11 @@ export function CheckboxInput<T extends FieldValues>({
                         isDisabled={disabled}
                         isInvalid={!!error}
                         classNames={{
-                            label: 'text-sm font-medium text-default-700',
+                            label: 'text-sm font-medium text-default-700 text-wrap',
                             wrapper: 'group-data-[selected=true]:border-primary',
                         }}
                     >
-                        <span className="text-sm font-medium text-default-700">{label}</span>
+                       {label}
                     </Checkbox>
                     {description && (
                         <p className="text-xs text-default-500 ml-7 mt-1">{description}</p>

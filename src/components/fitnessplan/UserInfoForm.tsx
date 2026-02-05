@@ -378,21 +378,29 @@ export function UserInfoForm() {
                     onSelectReviewBox={setSelectedReviewBox}
                 />
             ) : (
-                <div className="max-w-3xl mx-auto p-6">
-                    <h1 className="text-3xl font-bold text-center mb-4">
-                        Fitness Profile
-                    </h1>
-                    <p className="text-center text-default-500 mb-8">
-                        Tell us about yourself so we can create a personalized fitness plan
-                        for you.
-                    </p>
+                <div className="max-w-4xl mx-auto px-4 md:px-6 py-0 md:py-10">
+                    <div className="relative overflow-hidden rounded-3xl border border-emerald-100/60 bg-[radial-gradient(800px_400px_at_8%_-10%,_rgba(16,185,129,0.18),_transparent_55%),radial-gradient(700px_350px_at_92%_0%,_rgba(234,179,8,0.16),_transparent_55%)] p-6 md:p-8 mb-6 md:mb-10 shadow-[0_20px_60px_-35px_rgba(15,23,42,0.6)]">
+                        <div className="absolute right-0 top-0 h-24 w-24 -translate-y-1/2 translate-x-1/2 rounded-full bg-emerald-400/10 blur-2xl" />
+                        <div className="absolute bottom-0 left-0 h-20 w-20 translate-y-1/2 -translate-x-1/2 rounded-full bg-amber-400/10 blur-2xl" />
+                        <div className="relative">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                                Fitness Intake
+                            </div>
+                            <h1 className="text-2xl md:text-4xl font-semibold text-slate-900 mt-3">
+                                Build Your Precision Plan
+                            </h1>
+                            <p className="mt-2 text-sm md:text-base text-slate-600 max-w-2xl">
+                                Share your essentials and we will craft a high-performance fitness and nutrition plan calibrated to you.
+                            </p>
+                        </div>
+                    </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                         {/* Section 1: Basic Identity */}
-                        <Card>
+                        <Card className="border border-slate-200/70 bg-white/80 backdrop-blur-sm shadow-[0_16px_40px_-32px_rgba(15,23,42,0.65)]">
                             <CardBody className="space-y-4">
                                 <div className="space-y-2">
-                                    <h2 className="text-xl font-semibold">Basic Identity</h2>
+                                    <h2 className="text-xl font-semibold text-slate-900">Basic Identity</h2>
                                     <Divider />
                                 </div>
 
@@ -428,10 +436,10 @@ export function UserInfoForm() {
                         </Card>
 
                         {/* Section 2: Body Metrics */}
-                        <Card>
+                        <Card className="border border-slate-200/70 bg-white/80 backdrop-blur-sm shadow-[0_16px_40px_-32px_rgba(15,23,42,0.65)]">
                             <CardBody className="space-y-4">
                                 <div className="space-y-2">
-                                    <h2 className="text-xl font-semibold">Body Metrics</h2>
+                                    <h2 className="text-xl font-semibold text-slate-900">Body Metrics</h2>
                                     <Divider />
                                 </div>
 
@@ -474,10 +482,10 @@ export function UserInfoForm() {
                         </Card>
 
                         {/* Section 3: Fitness Goal */}
-                        <Card>
+                        <Card className="border border-slate-200/70 bg-white/80 backdrop-blur-sm shadow-[0_16px_40px_-32px_rgba(15,23,42,0.65)]">
                             <CardBody className="space-y-4">
                                 <div className="space-y-2">
-                                    <h2 className="text-xl font-semibold">Fitness Goal</h2>
+                                    <h2 className="text-xl font-semibold text-slate-900">Fitness Goal</h2>
                                     <Divider />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -510,10 +518,10 @@ export function UserInfoForm() {
                         </Card>
 
                         {/* Section 4: Lifestyle */}
-                        <Card>
+                        <Card className="border border-slate-200/70 bg-white/80 backdrop-blur-sm shadow-[0_16px_40px_-32px_rgba(15,23,42,0.65)]">
                             <CardBody className="space-y-4">
                                 <div className="space-y-2">
-                                    <h2 className="text-xl font-semibold">Lifestyle</h2>
+                                    <h2 className="text-xl font-semibold text-slate-900">Lifestyle</h2>
                                     <Divider />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -534,10 +542,10 @@ export function UserInfoForm() {
                         </Card>
 
                         {/* Section 5: Health & Safety */}
-                        <Card>
+                        <Card className="border border-slate-200/70 bg-white/80 backdrop-blur-sm shadow-[0_16px_40px_-32px_rgba(15,23,42,0.65)]">
                             <CardBody className="space-y-4">
                                 <div className="space-y-2">
-                                    <h2 className="text-xl font-semibold">Health & Safety</h2>
+                                    <h2 className="text-xl font-semibold text-slate-900">Health & Safety</h2>
                                     <Divider />
                                 </div>
                                 <MultiSelectInput
@@ -556,11 +564,9 @@ export function UserInfoForm() {
                                     control={control as any}
                                 />
                                 {hasHeartCondition && (
-                                    <div className="p-4 bg-danger-50 border border-danger-200 rounded-lg">
-                                        <p className="text-danger-700 text-sm font-medium">
-                                            ⚠️ Heart Condition Detected: Please consult with your
-                                            doctor before starting any fitness program. Our
-                                            recommendations will be adjusted for low-impact exercises.
+                                    <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4">
+                                        <p className="text-amber-800 text-sm font-medium">
+                                            Heart condition detected. Please consult your doctor before starting any fitness program. We will prioritize low-impact recommendations.
                                         </p>
                                     </div>
                                 )}
@@ -568,10 +574,10 @@ export function UserInfoForm() {
                         </Card>
 
                         {/* Section 6: Location */}
-                        <Card>
+                        <Card className="border border-slate-200/70 bg-white/80 backdrop-blur-sm shadow-[0_16px_40px_-32px_rgba(15,23,42,0.65)]">
                             <CardBody className="space-y-4">
                                 <div className="space-y-2">
-                                    <h2 className="text-xl font-semibold">Location</h2>
+                                    <h2 className="text-xl font-semibold text-slate-900">Location</h2>
                                     <Divider />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -589,7 +595,7 @@ export function UserInfoForm() {
                                                         field.onChange(val);
                                                         setValue("state", ""); // Reset state when country changes
                                                     }}
-                                                    className="w-full h-10 px-3 rounded-xl border-2 border-default-200 hover:border-default-400 focus:border-primary-500 bg-transparent text-sm transition-all outline-none"
+                                                    className="w-full h-10 px-3 rounded-xl border-2 border-default-200 hover:border-default-400 focus:border-emerald-500 bg-transparent text-sm transition-all outline-none"
                                                     defaultOptionLabel="Select Country"
                                                 />
                                             )}
@@ -612,7 +618,7 @@ export function UserInfoForm() {
                                                     country={country as string}
                                                     value={field.value as string}
                                                     onChange={(val) => field.onChange(val)}
-                                                    className="w-full h-10 px-3 rounded-xl border-2 border-default-200 hover:border-default-400 focus:border-primary-500 bg-transparent text-sm transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="w-full h-10 px-3 rounded-xl border-2 border-default-200 hover:border-default-400 focus:border-emerald-500 bg-transparent text-sm transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                                                     defaultOptionLabel="Select State"
                                                     blankOptionLabel="Select country first"
                                                 />
@@ -636,10 +642,10 @@ export function UserInfoForm() {
                         </Card>
 
                         {/* Section 7: Preferences */}
-                        <Card>
+                        <Card className="border border-slate-200/70 bg-white/80 backdrop-blur-sm shadow-[0_16px_40px_-32px_rgba(15,23,42,0.65)]">
                             <CardBody className="space-y-4">
                                 <div className="space-y-2">
-                                    <h2 className="text-xl font-semibold">Preferences</h2>
+                                    <h2 className="text-xl font-semibold text-slate-900">Preferences</h2>
                                     <Divider />
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -674,7 +680,7 @@ export function UserInfoForm() {
                                 type="submit"
                                 color="primary"
                                 size="lg"
-                                className="min-w-48"
+                                className="min-w-52 bg-emerald-700 hover:bg-emerald-800 text-white shadow-[0_18px_40px_-24px_rgba(6,78,59,0.75)]"
                                 // isDisabled={!isValid}
                                 isLoading={loading}
                             >
