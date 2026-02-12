@@ -6,7 +6,7 @@ export const TextSummarizationSchema = z.object({
   keyPoints: z.array(z.string()).describe("The key points of the text"),
 });
 
-
+//fitness schema
 export const MacroSchema = z.object({
   protein_g: z.number().min(0),
   carbs_g: z.number().min(0),

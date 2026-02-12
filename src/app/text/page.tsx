@@ -31,8 +31,8 @@ const TextSummary = () => {
             <h1 className="text-2xl font-bold mb-4">Text Summarizer </h1>
 
             <textarea
-                className="w-full border p-2 rounded"
-                rows={6}
+                className="w-full border p-2 rounded-lg"
+                rows={2}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Paste text here..."
