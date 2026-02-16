@@ -111,7 +111,7 @@ const About = () => (
         <div>
           <h3 className="text-3xl font-bold text-neutral-900 mb-6">Mastering the shift to AI Engineering.</h3>
           <p className="text-neutral-600 leading-relaxed mb-6">
-            With a strong foundation in React and Tailwind CSS, I'm now specializing in building production-ready AI applications.
+            With a strong foundation in React and Tailwind CSS, I&#39;m now specializing in building production-ready AI applications.
             I focus on implementing Retrieval Augmented Generation (RAG), fine-tuning system prompts, and architecting structured outputs for seamless integration.
           </p>
         </div>
