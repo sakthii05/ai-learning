@@ -1,12 +1,10 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Spinner, Textarea } from "@heroui/react";
 import { FaArrowUpLong, FaStop } from "react-icons/fa6";
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from "ai";
 import { RxReload } from "react-icons/rx";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { StreamingMarkdown } from "@/components/chatUI/StreamingText";
 
 
@@ -21,6 +19,7 @@ const AIChat = () => {
     });
     const containerRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+   
 
     // Auto-scroll to bottom when messages update
     useEffect(() => {
@@ -56,12 +55,9 @@ const AIChat = () => {
                         ) : (
                             // Assistant message — render structured blocks
                             <div className="w-full max-w-[95%]">
-                                {/* <AssistantMessage parts={message.parts} /> */}
                                 {message.parts.map((part, index) =>
                                     part.type === 'text' ? (
-                                        <StreamingMarkdown content={part.text} key={index} />
-                                        // <ReactMarkdown key={index}
-                                        //     remarkPlugins={[remarkGfm]}>{part.text}</ReactMarkdown>
+                                        <StreamingMarkdown content={part.text} key={index} status={status} />
                                     ) : null
                                 )}
 
@@ -80,7 +76,7 @@ const AIChat = () => {
                     </div>
 
                 )}
-                {status === 'submitted' && (
+                {(status === 'submitted' || status === 'streaming') && (
                     <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                         <Spinner size="sm" />
                         <span className="text-sm">Thinking...</span>
@@ -113,6 +109,7 @@ const AIChat = () => {
                     placeholder="Ask anything"
                     size="lg"
                     radius="full"
+                    className=" drop-shadow-xl"
                 />
             </div>
         </main>

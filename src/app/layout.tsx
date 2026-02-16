@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "@/components/common/QueryProvider";
+import "streamdown/styles.css";
 
 const geistSans = Geist({
   weight: ["100", "200", "300", "400", "500", "700"],
