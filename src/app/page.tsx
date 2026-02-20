@@ -155,7 +155,7 @@ const Projects = () => (
           title="Chat Bot"
           description="Creating Chatgpt style chatbot with streaming response. Using gemini-2.5-flash model with markdown output"
           status="In Progress"
-          tags={['AI SDK', 'React-markdown', 'System-Prompt', 'LLM']}
+          tags={['AI-sdk', 'React-markdown', 'System-Prompt', 'LLM']}
           href="/aichat"
         />
         <ProjectCard
