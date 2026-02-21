@@ -51,7 +51,7 @@ export function StreamingMarkdown({ content, status }: Props) {
 
     return (
         
-        <ReactMarkdown
+        <Streamdown
         //     mode='static'
         //    animated={{
         //         duration:300,
@@ -63,81 +63,81 @@ export function StreamingMarkdown({ content, status }: Props) {
     
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
-        components={{
-            p({ children }) {
-                return <p className="mb-2 last:mb-0 text-[15px] leading-relaxed">{children}</p>;
-            },
-            h1({ children }) {
-                return <h1 className="text-2xl font-bold mt-4 mb-2 first:mt-0">{children}</h1>;
-            },
-            h2({ children }) {
-                return <h2 className="text-xl font-bold mt-4 mb-2 first:mt-0">{children}</h2>;
-            },
-            h3({ children }) {
-                return <h3 className="text-lg font-bold mt-4 mb-2 first:mt-0">{children}</h3>;
-            },
-            h4({ children }) {
-                return <h4 className="text-base font-bold mt-3 mb-1 first:mt-0">{children}</h4>;
-            },
-            h5({ children }) {
-                return <h5 className="text-sm font-bold mt-3 mb-1 first:mt-0">{children}</h5>;
-            },
-            h6({ children }) {
-                return <h6 className="text-xs font-bold mt-3 mb-1 first:mt-0">{children}</h6>;
-            },
-            hr() {
-                return <hr className="my-4 border-gray-200 dark:border-gray-800" />;
-            },
-            ul({ children }) {
-                return <ul className="list-disc ml-6 mb-2 space-y-1">{children}</ul>;
-            },
-            ol({ children }) {
-                return <ol className="list-decimal ml-6 mb-2 space-y-1">{children}</ol>;
-            },
-            li({ children }) {
-                return <li className="text-[15px]">{children}</li>;
-            },
-            code({ node, className, children, ...props }) {
-                const match = /language-(\w+)/.exec(className || '');
-                const isInline = !match;
-                const codeString = String(children).replace(/\n$/, '');
+        // components={{
+        //     p({ children }) {
+        //         return <p className="mb-2 last:mb-0 text-[15px] leading-relaxed">{children}</p>;
+        //     },
+        //     h1({ children }) {
+        //         return <h1 className="text-2xl font-bold mt-4 mb-2 first:mt-0">{children}</h1>;
+        //     },
+        //     h2({ children }) {
+        //         return <h2 className="text-xl font-bold mt-4 mb-2 first:mt-0">{children}</h2>;
+        //     },
+        //     h3({ children }) {
+        //         return <h3 className="text-lg font-bold mt-4 mb-2 first:mt-0">{children}</h3>;
+        //     },
+        //     h4({ children }) {
+        //         return <h4 className="text-base font-bold mt-3 mb-1 first:mt-0">{children}</h4>;
+        //     },
+        //     h5({ children }) {
+        //         return <h5 className="text-sm font-bold mt-3 mb-1 first:mt-0">{children}</h5>;
+        //     },
+        //     h6({ children }) {
+        //         return <h6 className="text-xs font-bold mt-3 mb-1 first:mt-0">{children}</h6>;
+        //     },
+        //     hr() {
+        //         return <hr className="my-4 border-gray-200 dark:border-gray-800" />;
+        //     },
+        //     ul({ children }) {
+        //         return <ul className="list-disc ml-6 mb-2 space-y-1">{children}</ul>;
+        //     },
+        //     ol({ children }) {
+        //         return <ol className="list-decimal ml-6 mb-2 space-y-1">{children}</ol>;
+        //     },
+        //     li({ children }) {
+        //         return <li className="text-[15px]">{children}</li>;
+        //     },
+        //     code({ node, className, children, ...props }) {
+        //         const match = /language-(\w+)/.exec(className || '');
+        //         const isInline = !match;
+        //         const codeString = String(children).replace(/\n$/, '');
 
-                return isInline ? (
-                    <code className="bg-default-50 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>
-                ) : (
-                    <div className="relative group my-3">
-                        <CopyButton text={codeString} />
-                        <pre className="bg-default-50 p-4 rounded-xl overflow-x-auto font-mono shadow-md border border-gray-200 dark:border-gray-800">
-                            <code className={className}>{children}</code>
-                        </pre>
-                    </div>
-                );
-            },
-            table({ children }) {
-                return (
-                    <div className="overflow-x-auto my-4 rounded-lg border border-gray-200 dark:border-gray-800">
-                        <table className="w-full border-collapse text-sm text-left">
-                            {children}
-                        </table>
-                    </div>
-                );
-            },
-            thead({ children }) {
-                return <thead className="bg-gray-50 dark:bg-gray-900/50 uppercase text-xs font-semibold">{children}</thead>;
-            },
-            th({ children }) {
-                return <th className="px-6 py-3 border-b border-gray-200 dark:border-gray-800 text-center font-bold">{children}</th>;
-            },
-            td({ children }) {
-                return <td className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 text-center">{children}</td>;
-            },
-            tr({ children }) {
-                return <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">{children}</tr>;
-            }
-        }}
+        //         return isInline ? (
+        //             <code className="bg-default-50 dark:bg-gray-800 px-1.5 py-0.5 rounded text-sm font-mono">{children}</code>
+        //         ) : (
+        //             <div className="relative group my-3">
+        //                 <CopyButton text={codeString} />
+        //                 <pre className="bg-default-50 p-4 rounded-xl overflow-x-auto font-mono shadow-md border border-gray-200 dark:border-gray-800">
+        //                     <code className={className}>{children}</code>
+        //                 </pre>
+        //             </div>
+        //         );
+        //     },
+        //     table({ children }) {
+        //         return (
+        //             <div className="overflow-x-auto my-4 rounded-lg border border-gray-200 dark:border-gray-800">
+        //                 <table className="w-full border-collapse text-sm text-left">
+        //                     {children}
+        //                 </table>
+        //             </div>
+        //         );
+        //     },
+        //     thead({ children }) {
+        //         return <thead className="bg-gray-50 dark:bg-gray-900/50 uppercase text-xs font-semibold">{children}</thead>;
+        //     },
+        //     th({ children }) {
+        //         return <th className="px-6 py-3 border-b border-gray-200 dark:border-gray-800 text-center font-bold">{children}</th>;
+        //     },
+        //     td({ children }) {
+        //         return <td className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 text-center">{children}</td>;
+        //     },
+        //     tr({ children }) {
+        //         return <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">{children}</tr>;
+        //     }
+        // }}
         >
             {sanitizedHtml}
-        </ReactMarkdown>
+        </Streamdown>
 
     );
 }
