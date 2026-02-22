@@ -1,16 +1,15 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { Spinner, Textarea } from "@heroui/react";
-import { FaArrowUpLong, FaStop } from "react-icons/fa6";
+import { FaArrowUpLong, FaGoogle, FaStop } from "react-icons/fa6";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { LuCopy, LuCheck, LuPencil, LuRefreshCw } from "react-icons/lu";
 import { StreamingMarkdown } from "@/components/chatUI/StreamingText";
-import { IoMdAdd } from "react-icons/io";
 import { IoCloseCircle } from "react-icons/io5";
 import Image from "next/image";
 import SpeechToText from "@/components/chatUI/SpeechToText";
-import { set } from "zod/v4";
+import AddMenu from "@/components/chatUI/AddMenu";
 
 const readyMadePrompts = [
   "JS code to find first prime number",
@@ -18,6 +17,33 @@ const readyMadePrompts = [
   "Best LLM for web search in 2025",
   "How Imporve Prompt Engineering Skills?",
 ];
+
+const models = [
+  {
+    key: "gemini-3-flash-preview",
+    name: "Gemini 3 Flash Preview",
+    description: "Fast, versatile, and great for most tasks",
+    icon: <FaGoogle />
+  },
+  {
+    key: "gemini-2.5-pro",
+    name: "Gemini 2.5 Pro",
+    description: "Coding, Complex reasoning tasks",
+    icon: <FaGoogle />
+  },
+  {
+    key: "gemini-2.5-flash",
+    name: "Gemini 2.5 Flash",
+    description: "Hybrid reasoning model",
+    icon: <FaGoogle />
+  },
+  {
+    key: "gemini-2.5-flash-lite",
+    name: "Gemini 2.5 Flash Lite",
+    description: "Smallest and most cost effective model",
+    icon: <FaGoogle />
+  },
+]
 
 const AIChat = () => {
   const [promptText, setPromtText] = useState("");
@@ -28,6 +54,7 @@ const AIChat = () => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [basePrompt, setBasePrompt] = useState("");
+  const [selectedModel, setSelectedModel] = useState("gemini-3-flash-preview");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -42,6 +69,9 @@ const AIChat = () => {
   } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/chat",
+      body:{
+        model:selectedModel
+      }
     }),
     experimental_throttle: 1000,
     // resume: true
@@ -301,8 +331,8 @@ const AIChat = () => {
         ))}
 
         {error && (
-          <div className="flex justify-center items-center gap-2">
-            <div className="text-danger text-center">An error occurred. </div>
+          <div className="flex justify-center items-center gap-2 px-2 flex-wrap">
+            <span className="text-danger text-center line-clamp-3">{`${error}`}</span>
             <div
               className="flex gap-2 items-center cursor-pointer hover:underline"
               onClick={() => regenerate()}
@@ -326,7 +356,7 @@ const AIChat = () => {
       >
         {messages.length === 0 && (
           <div className="text-center text-3xl font-medium ">
-            What&apos;s on the agenda today?
+            What can I help with?
           </div>
         )}
         <div className="flex flex-wrap gap-2 mb-2">
@@ -369,13 +399,8 @@ const AIChat = () => {
         <Textarea
           startContent={
             <div className="flex items-center gap-2 -ml-2 flex-none">
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="w-6 h-6 rounded-full bg-default-400 flex justify-center items-center text-white cursor-pointer hover:bg-default-500 transition-colors"
-                title="Add files"
-              >
-                <IoMdAdd size={18} />
-              </div>
+
+              <AddMenu models={models} selectedModel={selectedModel} setSelectedModel={setSelectedModel} onAddFiles={() => fileInputRef.current?.click()} />
               {status === "ready" && (
                 <SpeechToText
                   onTranscript={handleTranscript}
