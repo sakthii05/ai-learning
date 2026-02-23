@@ -148,13 +148,13 @@ const Projects = () => (
           title="Fitness Plan Generator"
           description="Generate personalized fitness plans based on user inputs. Share your essentials and we will craft a high-performance fitness and nutrition plan calibrated to you."
           status="Live"
-          tags={['LangChain', 'Zod', "System-Prompt", "Structured-utput"]}
+          tags={['LangChain', 'Zod', "System-Prompt", "Structured-Output"]}
           href="/fitnessplan"
         />
         <ProjectCard
           title="Chat Bot"
           description="Creating Chatgpt style chatbot with streaming response. Using gemini-2.5-flash model with markdown output"
-          status="In Progress"
+          status="Live"
           tags={['AI-sdk', 'React-markdown', 'System-Prompt', 'LLM']}
           href="/aichat"
         />
