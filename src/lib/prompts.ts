@@ -133,3 +133,6 @@ export const reGenerateFitnessPlan = async (user_prompt: string) => {
   const result = await chain.invoke({ user_prompt });
   return result;
 };
+
+
+ 

@@ -1,15 +1,16 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { Spinner, Textarea } from "@heroui/react";
+import { addToast, Spinner, Textarea } from "@heroui/react";
 import { FaArrowUpLong, FaGoogle, FaStop } from "react-icons/fa6";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { LuCopy, LuCheck, LuPencil, LuRefreshCw } from "react-icons/lu";
 import { StreamingMarkdown } from "@/components/chatUI/StreamingText";
-import { IoCloseCircle } from "react-icons/io5";
+import { IoCloseCircle, IoSettings } from "react-icons/io5";
 import Image from "next/image";
 import SpeechToText from "@/components/chatUI/SpeechToText";
 import AddMenu from "@/components/chatUI/AddMenu";
+import Settings from "@/components/chatUI/Settings";
 
 const readyMadePrompts = [
   "JS code to find first prime number",
@@ -17,33 +18,33 @@ const readyMadePrompts = [
   "Best LLM for web search in 2025",
   "How Imporve Prompt Engineering Skills?",
 ];
-
+const SystemPromptChat = `You are a friendly, human-like AI assistant.`;
 const models = [
   {
     key: "gemini-3-flash-preview",
     name: "Gemini 3 Flash Preview",
     description: "Fast, versatile, and great for most tasks",
-    icon: <FaGoogle />
+    icon: <FaGoogle />,
   },
   {
     key: "gemini-2.5-pro",
     name: "Gemini 2.5 Pro",
     description: "Coding, Complex reasoning tasks",
-    icon: <FaGoogle />
+    icon: <FaGoogle />,
   },
   {
     key: "gemini-2.5-flash",
     name: "Gemini 2.5 Flash",
     description: "Hybrid reasoning model",
-    icon: <FaGoogle />
+    icon: <FaGoogle />,
   },
   {
     key: "gemini-2.5-flash-lite",
     name: "Gemini 2.5 Flash Lite",
     description: "Smallest and most cost effective model",
-    icon: <FaGoogle />
+    icon: <FaGoogle />,
   },
-]
+];
 
 const AIChat = () => {
   const [promptText, setPromtText] = useState("");
@@ -52,9 +53,10 @@ const AIChat = () => {
   const [editingText, setEditingText] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const [basePrompt, setBasePrompt] = useState("");
-  const [selectedModel, setSelectedModel] = useState("gemini-3-flash-preview");
+  const [selectedModel, setSelectedModel] = useState("gemini-2.5-flash");
+  const [temperature, setTemperature] = useState(0.5);
+  const [systemPrompt, setSystemPrompt] = useState(SystemPromptChat);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -65,16 +67,18 @@ const AIChat = () => {
     stop,
     error,
     regenerate,
-    setMessages,
   } = useChat({
+    onFinish: (usage) => {
+      console.log("finish", usage);
+    },
     transport: new DefaultChatTransport({
       api: "/api/chat",
-      body:{
-        model:selectedModel
-      }
+      body: {
+        model: selectedModel,
+        temperature,
+        systemPrompt,
+      },
     }),
-    experimental_throttle: 1000,
-    // resume: true
   });
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -86,24 +90,21 @@ const AIChat = () => {
     }
   }, [messages, status]);
 
-  const handleAskAI = () => {
-    if (promptText.trim()) {
-      const dataTransfer = new DataTransfer();
-      selectedFiles.forEach((file) => dataTransfer.items.add(file));
+  const handleAskAI = (prompt: string = "", autoPrompt: boolean = false) => {
+    const dataTransfer = new DataTransfer();
+    selectedFiles.forEach((file) => dataTransfer.items.add(file));
 
-      sendMessage({
-        text: promptText,
-        files: selectedFiles.length > 0 ? dataTransfer.files : undefined,
-      });
+    sendMessage({
+      text: autoPrompt ? prompt : promptText,
+      files: selectedFiles.length > 0 ? dataTransfer.files : undefined,
+    });
 
-      setPromtText("");
-      setSelectedFiles([]);
-      setPreviewUrls((prev) => {
-        prev.forEach((url) => URL.revokeObjectURL(url));
-        return [];
-      });
-      setUploadError(null);
-    }
+    setPromtText("");
+    setSelectedFiles([]);
+    setPreviewUrls((prev) => {
+      prev.forEach((url) => URL.revokeObjectURL(url));
+      return [];
+    });
   };
 
   const handleCopy = (messageId: string, text: string) => {
@@ -133,7 +134,6 @@ const AIChat = () => {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setUploadError(null);
 
     const validFiles: File[] = [];
     const newPreviewUrls: string[] = [];
@@ -141,13 +141,21 @@ const AIChat = () => {
     for (const file of files) {
       // Validate image file type
       if (!file.type.startsWith("image/")) {
-        setUploadError("Please select only image files.");
+        addToast({
+          title: "File upload error",
+          description: "Please select only image files.",
+          color: "danger",
+        });
         continue;
       }
 
       // Validate file size (< 1MB)
       if (file.size > 1024 * 1024) {
-        setUploadError(`File ${file.name} is too large. Max size is 1MB.`);
+        addToast({
+          title: "File upload error",
+          description: `File ${file.name} is too large. Max size is 1MB.`,
+          color: "danger",
+        });
         continue;
       }
 
@@ -238,39 +246,43 @@ const AIChat = () => {
                                 </span>
                               </div>
                               <div className="h-5 flex justify-end">
-                                <div className="hidden absolute group-hover:flex  gap-3 h-5 ">
-                                  <button
-                                    onClick={() =>
-                                      handleEdit(
-                                        message.id,
-                                        getMessageText(message),
-                                      )
-                                    }
-                                    className="text-default-500 transition-colors p-1"
-                                    title="Edit message"
-                                  >
-                                    <LuPencil size={16} />
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      handleCopy(
-                                        message.id,
-                                        getMessageText(message),
-                                      )
-                                    }
-                                    className="text-default-500 transition-colors p-1"
-                                    title="Copy message"
-                                  >
-                                    {copiedId === message.id ? (
-                                      <LuCheck
-                                        size={16}
-                                        className="text-green-500"
-                                      />
-                                    ) : (
-                                      <LuCopy size={16} />
-                                    )}
-                                  </button>
-                                </div>
+                                {
+                                  status === "ready" &&
+                                  <div className="hidden absolute group-hover:flex  gap-3 h-5 ">
+                                    <button
+                                      onClick={() =>
+                                        handleEdit(
+                                          message.id,
+                                          getMessageText(message),
+                                        )
+                                      }
+                                      className="text-default-500 transition-colors p-1"
+                                      title="Edit message"
+                                    >
+                                      <LuPencil size={16} />
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handleCopy(
+                                          message.id,
+                                          getMessageText(message),
+                                        )
+                                      }
+                                      className="text-default-500 transition-colors p-1"
+                                      title="Copy message"
+                                    >
+                                      {copiedId === message.id ? (
+                                        <LuCheck
+                                          size={16}
+                                          className="text-green-500"
+                                        />
+                                      ) : (
+                                        <LuCopy size={16} />
+                                      )}
+                                    </button>
+                                  </div>
+                                }
+                                
                               </div>
                             </div>
                           );
@@ -380,12 +392,12 @@ const AIChat = () => {
             </div>
           ))}
         </div>
-
+        {/* 
         {uploadError && (
           <div className="text-danger text-xs px-2 mb-1 animate-pulse">
             {uploadError}
           </div>
-        )}
+        )} */}
 
         <input
           type="file"
@@ -399,8 +411,12 @@ const AIChat = () => {
         <Textarea
           startContent={
             <div className="flex items-center gap-2 -ml-2 flex-none">
-
-              <AddMenu models={models} selectedModel={selectedModel} setSelectedModel={setSelectedModel} onAddFiles={() => fileInputRef.current?.click()} />
+              <AddMenu
+                models={models}
+                selectedModel={selectedModel}
+                setSelectedModel={setSelectedModel}
+                onAddFiles={() => fileInputRef.current?.click()}
+              />
               {status === "ready" && (
                 <SpeechToText
                   onTranscript={handleTranscript}
@@ -413,12 +429,23 @@ const AIChat = () => {
           onChange={(e) => setPromtText(e.target.value)}
           endContent={
             <div>
-              {promptText.trim() !== "" && status === "ready" ? (
-                <div
-                  onClick={handleAskAI}
-                  className="w-6 h-6 -mr-2 rounded-full bg-black flex justify-center items-center text-white cursor-pointer"
-                >
-                  <FaArrowUpLong className="text-sm" />
+              {status === "ready" ? (
+                <div className="flex gap-2">
+                  <Settings
+                    initialValues={{ temperature, systemPrompt }}
+                    onSave={(values) => {
+                      setTemperature(values.temperature);
+                      setSystemPrompt(values.systemPrompt);
+                    }}
+                  />
+                  {promptText.trim() !== "" && (
+                    <div
+                      onClick={() => handleAskAI()}
+                      className="w-6 h-6 -mr-2 rounded-full bg-black flex justify-center items-center text-white cursor-pointer"
+                    >
+                      <FaArrowUpLong className="text-sm" />
+                    </div>
+                  )}
                 </div>
               ) : (
                 (status === "submitted" || status === "streaming") && (
@@ -450,8 +477,7 @@ const AIChat = () => {
               <button
                 key={index}
                 onClick={() => {
-                  setPromtText(prompt);
-                  handleAskAI()
+                  handleAskAI(prompt, true);
                 }}
                 className="px-3 py-1 rounded-full border text-sm hover:border-orange-400  transition-colors"
               >
